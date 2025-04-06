@@ -12,7 +12,6 @@ export const performCompleteLogout = async (redirectPath = '/login'): Promise<vo
     try {
       await signOut({ global: true });
     } catch (amplifyError) {
-      console.error('Amplify signOut error:', amplifyError);
       // Continue with the process even if Amplify signOut fails
     }
 
@@ -29,7 +28,6 @@ export const performCompleteLogout = async (redirectPath = '/login'): Promise<vo
       localStorage.clear();
       sessionStorage.clear();
     } catch (storageError) {
-      console.error('Error clearing storage:', storageError);
     }
 
     // Specifically target authentication-related storage items
@@ -70,7 +68,6 @@ export const performCompleteLogout = async (redirectPath = '/login'): Promise<vo
       }, 300);
     }
   } catch (error) {
-    console.error('Complete logout error:', error);
     // If all else fails, force a hard redirect
     if (redirectPath) {
       window.location.href = redirectPath;
@@ -98,7 +95,6 @@ export const logoutViaCognitoEndpoint = (): void => {
     // This avoids dealing with complex Cognito parameter requirements
     window.location.href = '/login';
   } catch (error) {
-    console.error('Logout error:', error);
     // Fallback to direct navigation
     window.location.href = '/login';
   }
@@ -131,7 +127,6 @@ export const handleOidcLogout = (auth: any): void => {
       window.location.href = '/login';
     }, 100);
   } catch (error) {
-    console.error('OIDC logout error:', error);
     // Fallback - direct navigation
     window.location.href = '/login';
   }
@@ -149,7 +144,6 @@ export const completeLogout = (auth: any): void => {
       try {
         auth.removeUser();
       } catch (e) {
-        console.error('Error removing user from auth context:', e);
       }
     }
     
@@ -164,7 +158,6 @@ export const completeLogout = (auth: any): void => {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
       });
     } catch (e) {
-      console.error('Error clearing browser storage:', e);
     }
     
     // Now build the proper Cognito logout URL with all required parameters
@@ -173,7 +166,6 @@ export const completeLogout = (auth: any): void => {
     
     // Get the exact origin to use as redirect URI
     const exactOrigin = window.location.origin;
-    console.log('Exact redirect origin being used:', exactOrigin);
     
     const redirectUri = encodeURIComponent(exactOrigin);
     const responseType = 'code'; // Required parameter
@@ -187,12 +179,9 @@ export const completeLogout = (auth: any): void => {
     // Construct the complete logout URL with all required parameters
     const logoutUrl = `https://${cognitoDomain}/logout?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}${idTokenParam}`;
     
-    console.log('Redirecting to Cognito logout URL:', logoutUrl);
-    
     // Redirect to the Cognito logout endpoint
     window.location.href = logoutUrl;
   } catch (error) {
-    console.error('Complete logout error:', error);
     // Fallback - just clear what we can and redirect
     localStorage.clear();
     sessionStorage.clear();
