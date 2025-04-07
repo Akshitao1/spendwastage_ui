@@ -56,16 +56,21 @@ const ClientSelectionPage: React.FC = () => {
         setLoading(true);
         // Fetch all clients
         const allClients = await fetchClients();
-        setClients(allClients);
-        setFilteredClients(allClients);
-
-        // Fetch agency IDs
-        const agencies = await getUniqueAgencyIds();
-        setAgencyIds(agencies);
+        if (Array.isArray(allClients) && allClients.length > 0) {
+          setClients(allClients);
+          setFilteredClients(allClients);
+          
+          // Extract unique agency IDs
+          const agencies = await getUniqueAgencyIds();
+          setAgencyIds(agencies);
+        } else {
+          setError('No clients found. Please try again later.');
+        }
 
         // Set selected clients from user preferences
         setSelectedClients(selectedClientIds);
       } catch (err) {
+        console.error('Error fetching clients:', err);
         setError('Failed to load clients. Please try again later.');
       } finally {
         setLoading(false);

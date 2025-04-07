@@ -34,6 +34,20 @@ const getReason = (action: SpendWastageAction): string => {
 };
 
 export const TotalJobMetricsTable: React.FC<TotalJobMetricsTableProps> = ({ actions }) => {
+  // Handle null or empty actions array
+  if (!actions || !Array.isArray(actions) || actions.length === 0) {
+    return (
+      <Paper sx={{ p: 2, mb: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          Total Job Metrics
+        </Typography>
+        <Typography variant="body1">
+          No actions available.
+        </Typography>
+      </Paper>
+    );
+  }
+
   // First, get unique jobs by job_id and action, keeping only the latest record for each
   const uniqueJobs = actions.reduce((acc, action) => {
     const key = `${action.job_id}-${action.action}`;
