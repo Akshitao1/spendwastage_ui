@@ -1,6 +1,19 @@
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
 
+// Monkey patch util._extend to suppress deprecation warning
+// This is only needed until all dependencies stop using it
+const util = require('util');
+if (util._extend) {
+  const originalExtend = util._extend;
+  Object.defineProperty(util, '_extend', {
+    enumerable: false,
+    value: function(target, source) {
+      return Object.assign(target, source);
+    }
+  });
+}
+
 module.exports = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   entry: './src/index.tsx',

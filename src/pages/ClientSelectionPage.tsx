@@ -66,7 +66,6 @@ const ClientSelectionPage: React.FC = () => {
         // Set selected clients from user preferences
         setSelectedClients(selectedClientIds);
       } catch (err) {
-        console.error('Error loading clients:', err);
         setError('Failed to load clients. Please try again later.');
       } finally {
         setLoading(false);
@@ -94,7 +93,6 @@ const ClientSelectionPage: React.FC = () => {
         setFilteredClients(clients.filter(client => !selectedClients.includes(client.client_id)));
       }
     } catch (err) {
-      console.error('Error filtering by agency:', err);
       setError('Failed to filter clients by agency.');
     } finally {
       setLoading(false);
@@ -164,7 +162,6 @@ const ClientSelectionPage: React.FC = () => {
       await saveClientSelections(selectedClients);
       navigate('/dashboard');
     } catch (err) {
-      console.error('Error saving client selections:', err);
       setError('Failed to save your selections. Please try again.');
     }
   };

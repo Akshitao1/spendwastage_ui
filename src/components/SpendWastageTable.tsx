@@ -88,7 +88,35 @@ const JobRow: React.FC<JobRowProps> = ({ action }) => {
         <TableCell>{action.job_ref_number}</TableCell>
         <TableCell>{action.job_group_name}</TableCell>
         <TableCell>{action.publisher_name}</TableCell>
-        <TableCell>{action.action}</TableCell>
+        <TableCell>
+          {action.action === 'RESUME_JOB_PUBLISHER' ? (
+            <Chip 
+              label="RESUME_JOB_PUBLISHER" 
+              size="small"
+              sx={{ 
+                color: 'success.main', 
+                borderColor: 'success.main',
+                border: 1,
+                bgcolor: 'transparent',
+                '&:hover': { borderColor: 'success.dark', color: 'success.dark' }
+              }} 
+            />
+          ) : action.action === 'PAUSE_JOB_PUBLISHER' ? (
+            <Chip 
+              label="PAUSE_JOB_PUBLISHER" 
+              size="small"
+              sx={{ 
+                color: 'error.main', 
+                borderColor: 'error.main',
+                border: 1,
+                bgcolor: 'transparent',
+                '&:hover': { borderColor: 'error.dark', color: 'error.dark' }
+              }} 
+            />
+          ) : (
+            action.action
+          )}
+        </TableCell>
         <TableCell>{new Date(action.pause_date).toLocaleDateString()}</TableCell>
         <TableCell align="right">
           {action.action === 'PAUSE_JOB_PUBLISHER' ? action.stats.TG.tg_mtd_applies : '-'}
@@ -309,7 +337,35 @@ const ClientRow: React.FC<ClientRowProps> = ({ clientName, clientActions }) => {
             onChange={() => handleFilterChange(value)}
             size="small"
           />
-          <ListItemText primary={value} />
+          {activeFilter === 'action' && value === 'RESUME_JOB_PUBLISHER' ? (
+            <Chip 
+              label="RESUME_JOB_PUBLISHER" 
+              size="small"
+              sx={{ 
+                color: 'success.main', 
+                borderColor: 'success.main',
+                border: 1,
+                bgcolor: 'transparent',
+                '&:hover': { borderColor: 'success.dark', color: 'success.dark' },
+                ml: 1
+              }} 
+            />
+          ) : activeFilter === 'action' && value === 'PAUSE_JOB_PUBLISHER' ? (
+            <Chip 
+              label="PAUSE_JOB_PUBLISHER" 
+              size="small"
+              sx={{ 
+                color: 'error.main', 
+                borderColor: 'error.main',
+                border: 1,
+                bgcolor: 'transparent',
+                '&:hover': { borderColor: 'error.dark', color: 'error.dark' },
+                ml: 1
+              }} 
+            />
+          ) : (
+            <ListItemText primary={value} />
+          )}
         </MenuItem>
       ))}
     </Menu>

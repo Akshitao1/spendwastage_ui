@@ -31,12 +31,9 @@ const AuthenticatedApp: React.FC = () => {
   useEffect(() => {
     const initialize = async () => {
       try {
-        console.log('Initializing application...');
         setIsConfiguring(true);
         setIsConfiguring(false);
-        console.log('Initialization complete');
       } catch (error) {
-        console.error('Failed to initialize application:', error instanceof Error ? error.name : 'Unknown error');
         setIsConfiguring(false);
       }
     };

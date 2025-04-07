@@ -19,9 +19,6 @@ const cognitoAuthConfig = {
   }
 };
 
-// Log the exact redirect URI being used for debugging
-console.log('OIDC redirect URI:', cognitoAuthConfig.redirect_uri);
-
 // Create the root
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -37,4 +34,4 @@ root.render(
 );
 
 // If you want to measure performance, pass a function to log results
-reportWebVitals(console.log);
+reportWebVitals();

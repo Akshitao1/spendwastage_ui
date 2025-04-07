@@ -8,14 +8,12 @@ const Navbar: React.FC = () => {
   const auth = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     try {
-      // Use the complete logout function that properly handles Cognito logout
-      completeLogout(auth);
+      await completeLogout(auth);
+      navigate('/login');
     } catch (error) {
-      console.error('Error during logout:', error);
-      // Fallback for any errors - force redirect
-      window.location.href = '/login';
+      // Failed logout
     }
   };
 

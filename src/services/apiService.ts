@@ -8,20 +8,12 @@ const API_BASE_URL = '/api';
 export const fetchClients = async (): Promise<Client[]> => {
   try {
     const url = `${API_BASE_URL}/clients/simple`;
-    console.log('Fetching clients from:', url);
     const response = await axios.get<Client[]>(url);
-    console.log('Clients API Response:', response.data);
-    return response.data;
+    // Ensure we always return an array
+    return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('Error fetching clients:', {
-        message: error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data
-      });
-    } else {
-      console.error('Error fetching clients:', error);
+      // Silently handle error
     }
     throw error;
   }
@@ -31,9 +23,10 @@ export const fetchClients = async (): Promise<Client[]> => {
 export const fetchClientsByAgency = async (agencyId: string): Promise<Client[]> => {
   try {
     const allClients = await fetchClients();
-    return allClients.filter(client => client.agency_id === agencyId);
+    // Check if allClients is an array, if not, convert to empty array
+    const clientsArray = Array.isArray(allClients) ? allClients : [];
+    return clientsArray.filter(client => client.agency_id === agencyId);
   } catch (error) {
-    console.error('Error fetching clients by agency:', error);
     throw error;
   }
 };
@@ -42,11 +35,12 @@ export const fetchClientsByAgency = async (agencyId: string): Promise<Client[]> 
 export const getUniqueAgencyIds = async (): Promise<string[]> => {
   try {
     const allClients = await fetchClients();
-    const agencyIdsSet = new Set(allClients.map(client => client.agency_id));
+    // Check if allClients is an array, if not, convert to empty array
+    const clientsArray = Array.isArray(allClients) ? allClients : [];
+    const agencyIdsSet = new Set(clientsArray.map(client => client.agency_id));
     const agencyIds = Array.from(agencyIdsSet);
     return agencyIds;
   } catch (error) {
-    console.error('Error getting unique agency IDs:', error);
     throw error;
   }
 };
@@ -95,7 +89,6 @@ export const fetchSpendWastageActions = async (
 
     return response.data;
   } catch (error) {
-    console.error('Error fetching spend wastage actions:', error);
     throw error;
   }
 }; 

@@ -14,16 +14,34 @@ interface UserPreferencesContextType {
 
 const UserPreferencesContext = createContext<UserPreferencesContextType | undefined>(undefined);
 
-// Configure DynamoDB client
-const dynamoClient = new DynamoDBClient({
-  region: process.env.REACT_APP_AWS_REGION,
-  credentials: {
-    accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || ''
-  }
-});
+// Check if we have actual AWS credentials
+const hasValidCredentials = !!(
+  process.env.REACT_APP_AWS_ACCESS_KEY_ID && 
+  process.env.REACT_APP_AWS_ACCESS_KEY_ID.length > 0 &&
+  process.env.REACT_APP_AWS_SECRET_ACCESS_KEY && 
+  process.env.REACT_APP_AWS_SECRET_ACCESS_KEY.length > 0
+);
 
-const docClient = DynamoDBDocumentClient.from(dynamoClient);
+// Only create the DynamoDB client if we have credentials
+let dynamoClient: DynamoDBClient | null = null;
+let docClient: any = null;
+
+if (hasValidCredentials) {
+  try {
+    dynamoClient = new DynamoDBClient({
+      region: process.env.REACT_APP_AWS_REGION || 'ap-south-1',
+      credentials: {
+        accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || ''
+      }
+    });
+    
+    docClient = DynamoDBDocumentClient.from(dynamoClient);
+  } catch (error) {
+    dynamoClient = null;
+    docClient = null;
+  }
+}
 
 interface UserPreferencesProviderProps {
   children: ReactNode;
@@ -49,8 +67,23 @@ export const UserPreferencesProvider: React.FC<UserPreferencesProviderProps> = (
       setError(null);
 
       try {
+        // Check if DynamoDB client is available
+        if (!docClient) {
+          // Fallback to using localStorage if DynamoDB is not available
+          const storedPrefs = localStorage.getItem(`userPrefs_${userEmail}`);
+          if (storedPrefs) {
+            const userPreferences = JSON.parse(storedPrefs);
+            setSelectedClientIds(userPreferences.selectedClientIds || []);
+            setHasInitialClientSelections(true);
+          } else {
+            setSelectedClientIds([]);
+            setHasInitialClientSelections(false);
+          }
+          return;
+        }
+
         const command = new GetCommand({
-          TableName: process.env.REACT_APP_DYNAMODB_TABLE_NAME,
+          TableName: process.env.REACT_APP_DYNAMODB_TABLE_NAME || 'spendwastage-user-preferences',
           Key: { email: userEmail }
         });
 
@@ -65,7 +98,6 @@ export const UserPreferencesProvider: React.FC<UserPreferencesProviderProps> = (
           setHasInitialClientSelections(false);
         }
       } catch (err) {
-        console.error('Error fetching user preferences:', err);
         setError('Failed to fetch your saved preferences');
         setSelectedClientIds([]);
         setHasInitialClientSelections(false);
@@ -88,8 +120,20 @@ export const UserPreferencesProvider: React.FC<UserPreferencesProviderProps> = (
     setError(null);
 
     try {
+      // Check if DynamoDB client is available
+      if (!docClient) {
+        // Fallback to using localStorage if DynamoDB is not available
+        localStorage.setItem(`userPrefs_${userEmail}`, JSON.stringify({
+          email: userEmail,
+          selectedClientIds: clientIds
+        }));
+        setSelectedClientIds(clientIds);
+        setHasInitialClientSelections(true);
+        return;
+      }
+
       const command = new PutCommand({
-        TableName: process.env.REACT_APP_DYNAMODB_TABLE_NAME,
+        TableName: process.env.REACT_APP_DYNAMODB_TABLE_NAME || 'spendwastage-user-preferences',
         Item: {
           email: userEmail,
           selectedClientIds: clientIds
@@ -100,7 +144,6 @@ export const UserPreferencesProvider: React.FC<UserPreferencesProviderProps> = (
       setSelectedClientIds(clientIds);
       setHasInitialClientSelections(true);
     } catch (err) {
-      console.error('Error saving client selections:', err);
       setError('Failed to save your preferences');
     } finally {
       setIsLoading(false);

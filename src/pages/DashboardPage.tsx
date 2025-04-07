@@ -66,9 +66,7 @@ const DashboardPage: React.FC = () => {
         setActions(data);
         setError(null);
       } catch (err) {
-        console.error('Error fetching spend wastage actions:', err);
-        setError('Failed to load spend wastage actions. Please try again later.');
-        setActions([]);
+        setError('Failed to load spend wastage actions.');
       } finally {
         setLoading(false);
       }
