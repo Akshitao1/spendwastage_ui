@@ -34,7 +34,7 @@ const DashboardPage: React.FC = () => {
 
   // Group actions by client
   const groupedActions = useMemo(() => {
-    if (!actions) return {};
+    if (!actions || !Array.isArray(actions)) return {};
     
     return actions.reduce((acc, action) => {
       const clientName = action.client_name || 'Unknown Client';
@@ -103,7 +103,7 @@ const DashboardPage: React.FC = () => {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/client-selection')}
             startIcon={<EditIcon />}
           >
             Edit Clients

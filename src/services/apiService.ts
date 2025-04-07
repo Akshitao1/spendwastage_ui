@@ -1,21 +1,16 @@
-import axios from 'axios';
+import apiClient from './axiosConfig';
 import { Client, SpendWastageAction } from '../types';
-
-// Use relative URL for development proxy
-const API_BASE_URL = '/api';
 
 // Fetch all clients
 export const fetchClients = async (): Promise<Client[]> => {
   try {
-    const url = `${API_BASE_URL}/clients/simple`;
-    const response = await axios.get<Client[]>(url);
+    const response = await apiClient.get<Client[]>('/clients/simple');
     // Ensure we always return an array
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      // Silently handle error
-    }
-    throw error;
+    console.error('Error fetching clients:', error);
+    // Return empty array instead of throwing to prevent app crashes
+    return [];
   }
 };
 
@@ -27,7 +22,8 @@ export const fetchClientsByAgency = async (agencyId: string): Promise<Client[]> 
     const clientsArray = Array.isArray(allClients) ? allClients : [];
     return clientsArray.filter(client => client.agency_id === agencyId);
   } catch (error) {
-    throw error;
+    console.error('Error fetching clients by agency:', error);
+    return [];
   }
 };
 
@@ -41,7 +37,8 @@ export const getUniqueAgencyIds = async (): Promise<string[]> => {
     const agencyIds = Array.from(agencyIdsSet);
     return agencyIds;
   } catch (error) {
-    throw error;
+    console.error('Error getting unique agency IDs:', error);
+    return [];
   }
 };
 
@@ -76,8 +73,8 @@ export const fetchSpendWastageActions = async (
     const endDateFormatted = formatDateForApi(endDate);
     const clientIdsParam = clientIds.join(',');
 
-    const response = await axios.get<SpendWastageAction[]>(
-      `${API_BASE_URL}/spendwastageactions`,
+    const response = await apiClient.get<SpendWastageAction[]>(
+      '/spendwastageactions',
       {
         params: {
           client_ids: clientIdsParam,
@@ -87,8 +84,9 @@ export const fetchSpendWastageActions = async (
       }
     );
 
-    return response.data;
+    return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
-    throw error;
+    console.error('Error fetching spend wastage actions:', error);
+    return [];
   }
 }; 
